@@ -71,4 +71,13 @@ export const mockNotes: MeetingNote[] = [
       { speaker: "Sarah Chen", text: "Excellent results. Let's document this pattern for future reference." },
     ],
   },
+  {
+    id: "7",
+    title: "Test",
+    date: "Feb 17, 2026",
+    transcript: [
+      { speaker: "Alaoui", text: "The new onboarding flow has reduced drop-off by 23%. The progressive disclosure approach is working." },
+      { speaker: "Douaa", text: "Excellent results. Let's document this pattern for future reference." },
+    ],
+  },
 ];

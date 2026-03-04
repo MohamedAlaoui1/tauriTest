@@ -1,0 +1,7 @@
+sudo dpkg -r tauri-app
+
+npm run build
+
+npx tauri build
+
+sudo dpkg -i /home/alaoui/test/src-tauri/target/release/bundle/deb/tauri-app_0.1.0_amd64.deb
