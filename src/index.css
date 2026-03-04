@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 60 100% 96.5%;
+    --foreground: 0 0% 10%;
+
+    --card: 60 47% 91%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 60 100% 96.5%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 249 100% 85%;
+    --primary-foreground: 0 0% 10%;
+
+    --secondary: 60 47% 91%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 60 47% 91%;
+    --muted-foreground: 0 0% 53.3%;
+
+    --accent: 249 100% 85%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 55 17% 83.5%;
+    --input: 55 17% 83.5%;
+    --ring: 249 100% 85%;
+
+    --radius: 0.5rem;
+
+    --surface: 60 47% 91%;
+    --text-muted: 0 0% 53.3%;
+  }
+
+  .dark {
+    --background: 240 1% 13.3%;
+    --foreground: 40 14% 93.7%;
+
+    --card: 240 1% 17.3%;
+    --card-foreground: 40 14% 93.7%;
+
+    --popover: 240 1% 17.3%;
+    --popover-foreground: 40 14% 93.7%;
+
+    --primary: 58 67% 47.1%;
+    --primary-foreground: 240 1% 13.3%;
+
+    --secondary: 240 1% 17.3%;
+    --secondary-foreground: 40 14% 93.7%;
+
+    --muted: 240 1% 17.3%;
+    --muted-foreground: 0 0% 53.3%;
+
+    --accent: 58 67% 47.1%;
+    --accent-foreground: 240 1% 13.3%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 40 14% 93.7%;
+
+    --border: 240 1% 20%;
+    --input: 240 1% 20%;
+    --ring: 58 67% 47.1%;
+
+    --surface: 240 1% 17.3%;
+    --text-muted: 0 0% 53.3%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+@layer utilities {
+  .transition-theme {
+    transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+/* Pulsing dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Listening dots */
+@keyframes listening {
+  0%, 80%, 100% { opacity: 0.3; }
+  40% { opacity: 1; }
+}
+
+.animate-listening {
+  animation: listening 1.4s ease-in-out infinite;
+}
