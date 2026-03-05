@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{
+    Emitter,
     Manager,
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
@@ -15,9 +16,11 @@ fn show_popup(app: tauri::AppHandle, app_name: String) {
         if let Some(monitor) = app.primary_monitor().unwrap() {
             let screen = monitor.size();
             let scale = monitor.scale_factor();
-            let x = (screen.width as f64 / scale) as i32 - 340;
-            let y = (screen.height as f64 / scale) as i32 - 170;
-            popup.set_position(tauri::PhysicalPosition::new(x, y)).unwrap();
+            let width = 320.0 * scale;
+            let height = 150.0 * scale;
+            let x = screen.width as f64 - width - 20.0;
+            let y = screen.height as f64 - height - 60.0;
+            popup.set_position(tauri::PhysicalPosition::new(x as i32, y as i32)).unwrap();
         }
         popup.show().unwrap();
         popup.set_focus().unwrap();
@@ -33,6 +36,8 @@ fn start_transcription(app: tauri::AppHandle) {
         window.show().unwrap();
         window.set_focus().unwrap();
     }
+    // Emit event to trigger new meeting
+    app.emit("start-new-meeting", ()).unwrap();
 }
 
 #[tauri::command]
@@ -46,6 +51,13 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // If user clicks desktop shortcut while app is running, show the window
+            if let Some(window) = app.get_webview_window("main") {
+                window.show().unwrap();
+                window.set_focus().unwrap();
+            }
+        }))
         .invoke_handler(tauri::generate_handler![show_popup, start_transcription, dismiss_popup])
         .setup(|app| {
             // Enable autostart
@@ -54,6 +66,14 @@ fn main() {
 
             // Hide all windows on startup
             if let Some(window) = app.get_webview_window("main") {
+                // Intercept X button — hide to tray instead of closing
+                let w = window.clone();
+                window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        api.prevent_close();
+                        w.hide().unwrap();
+                    }
+                });
                 window.hide().unwrap();
             }
             if let Some(popup) = app.get_webview_window("popup") {

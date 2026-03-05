@@ -44,7 +44,8 @@
       "open": true
     },
     "tray": {},
-    "autostart": null
+    "autostart": null,
+    "single-instance": null
   },
   "bundle": {
     "active": true,

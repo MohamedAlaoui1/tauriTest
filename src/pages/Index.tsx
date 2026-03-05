@@ -3,6 +3,7 @@ import AppSidebar from "@/components/meeting/AppSidebar";
 import MainPanel from "@/components/meeting/MainPanel";
 import { mockNotes, MeetingNote, TranscriptLine } from "@/data/mockNotes";
 import { useTheme } from "@/hooks/useTheme";
+import { listen } from "@tauri-apps/api/event";
 
 const simulatedLines: TranscriptLine[] = [
   { speaker: "You", text: "Let's get started with today's meeting. I want to cover the progress on the new feature rollout." },
@@ -30,6 +31,15 @@ const Index = () => {
     setLiveTranscript([]);
     setElapsedSeconds(0);
   }, []);
+
+  useEffect(() => {
+    const unlisten = listen("start-new-meeting", () => {
+      startMeeting();
+    });
+    return () => {
+      unlisten.then(f => f());
+    };
+  }, [startMeeting]);
 
   // Timer
   useEffect(() => {
