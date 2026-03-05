@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 interface CallStatus {
   call_active: boolean;
@@ -8,16 +9,17 @@ interface CallStatus {
 const DEV_MODE = import.meta.env.DEV;
 
 export function useCallDetector() {
-  const [callActive, setCallActive] = useState<boolean>(false);
-  const [appName, setAppName] = useState<string>("");
+  const wasActive = useRef<boolean>(false);
 
   useEffect(() => {
     if (DEV_MODE) {
       let active = false;
       const interval = setInterval(() => {
         active = !active;
-        setCallActive(active);
-        setAppName("Teams (simulated)");
+        if (active && !wasActive.current) {
+          invoke("show_popup", { appName: "Teams (simulated)" });
+        }
+        wasActive.current = active;
       }, 10000);
       return () => clearInterval(interval);
     }
@@ -26,8 +28,12 @@ export function useCallDetector() {
       try {
         const res = await fetch("http://localhost:8000/status");
         const data: CallStatus = await res.json();
-        setCallActive(data.call_active);
-        setAppName(data.app_name || "Unknown App");
+
+        if (data.call_active && !wasActive.current) {
+          invoke("show_popup", { appName: data.app_name || "Unknown App" });
+        }
+
+        wasActive.current = data.call_active;
       } catch (e) {
         // Python app not running yet, ignore
       }
@@ -35,6 +41,4 @@ export function useCallDetector() {
 
     return () => clearInterval(interval);
   }, []);
-
-  return { callActive, appName };
 }

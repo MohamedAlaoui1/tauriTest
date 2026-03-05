@@ -6,14 +6,58 @@ use tauri::{
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
 use tauri_plugin_shell::ShellExt;
+use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_autostart::ManagerExt;
+
+#[tauri::command]
+fn show_popup(app: tauri::AppHandle, app_name: String) {
+    if let Some(popup) = app.get_webview_window("popup") {
+        if let Some(monitor) = app.primary_monitor().unwrap() {
+            let screen = monitor.size();
+            let scale = monitor.scale_factor();
+            let x = (screen.width as f64 / scale) as i32 - 340;
+            let y = (screen.height as f64 / scale) as i32 - 170;
+            popup.set_position(tauri::PhysicalPosition::new(x, y)).unwrap();
+        }
+        popup.show().unwrap();
+        popup.set_focus().unwrap();
+    }
+}
+
+#[tauri::command]
+fn start_transcription(app: tauri::AppHandle) {
+    if let Some(popup) = app.get_webview_window("popup") {
+        popup.hide().unwrap();
+    }
+    if let Some(window) = app.get_webview_window("main") {
+        window.show().unwrap();
+        window.set_focus().unwrap();
+    }
+}
+
+#[tauri::command]
+fn dismiss_popup(app: tauri::AppHandle) {
+    if let Some(popup) = app.get_webview_window("popup") {
+        popup.hide().unwrap();
+    }
+}
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
+        .invoke_handler(tauri::generate_handler![show_popup, start_transcription, dismiss_popup])
         .setup(|app| {
-            // Hide the main window on startup
+            // Enable autostart
+            let autostart_manager = app.autolaunch();
+            let _ = autostart_manager.enable();
+
+            // Hide all windows on startup
             if let Some(window) = app.get_webview_window("main") {
                 window.hide().unwrap();
+            }
+            if let Some(popup) = app.get_webview_window("popup") {
+                popup.hide().unwrap();
             }
 
             // Build tray menu

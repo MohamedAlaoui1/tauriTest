@@ -9,28 +9,9 @@ import { useCallDetector } from "./hooks/useCallDetector";
 
 const queryClient = new QueryClient();
 
-const CallPopup = () => {
-  const { callActive, appName } = useCallDetector();
-
-  if (!callActive) return null;
-
-  return (
-    <div style={{
-      position: "fixed",
-      bottom: "20px",
-      right: "20px",
-      backgroundColor: "#ef4444",
-      color: "white",
-      padding: "16px 24px",
-      borderRadius: "12px",
-      fontSize: "16px",
-      fontWeight: "bold",
-      zIndex: 9999,
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-    }}>
-      📞 Call detected on {appName}!
-    </div>
-  );
+const CallDetector = () => {
+  useCallDetector();
+  return null;
 };
 
 const App = () => (
@@ -38,7 +19,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <CallPopup />
+      <CallDetector />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
