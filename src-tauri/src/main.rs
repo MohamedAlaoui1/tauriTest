@@ -6,12 +6,12 @@ use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
-use tauri_plugin_shell::ShellExt;
+
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_autostart::ManagerExt;
 
 #[tauri::command]
-fn show_popup(app: tauri::AppHandle, app_name: String) {
+fn show_popup(app: tauri::AppHandle, _app_name: String) {
     if let Some(popup) = app.get_webview_window("popup") {
         if let Some(monitor) = app.primary_monitor().unwrap() {
             let screen = monitor.size();
