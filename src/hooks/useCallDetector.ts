@@ -5,11 +5,23 @@ interface CallStatus {
   app_name: string | null;
 }
 
+const DEV_MODE = import.meta.env.DEV;
+
 export function useCallDetector() {
   const [callActive, setCallActive] = useState<boolean>(false);
   const [appName, setAppName] = useState<string>("");
 
   useEffect(() => {
+    if (DEV_MODE) {
+      let active = false;
+      const interval = setInterval(() => {
+        active = !active;
+        setCallActive(active);
+        setAppName("Teams (simulated)");
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+
     const interval = setInterval(async () => {
       try {
         const res = await fetch("http://localhost:8000/status");

@@ -8,15 +8,18 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            let handle = app.handle().clone();
-            std::thread::spawn(move || {
-                handle
-                    .shell()
-                    .sidecar("detector")
-                    .unwrap()
-                    .spawn()
-                    .unwrap();
-            });
+            #[cfg(target_os = "windows")]
+            {
+                let handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    handle
+                        .shell()
+                        .sidecar("detector")
+                        .unwrap()
+                        .spawn()
+                        .unwrap();
+                });
+            }
             Ok(())
         })
         .run(tauri::generate_context!())
