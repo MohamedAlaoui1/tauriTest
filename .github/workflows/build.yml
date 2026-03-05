@@ -2,13 +2,13 @@ name: Build Tauri App
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/call-detector]
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest]
 
     runs-on: ${{ matrix.os }}
 
