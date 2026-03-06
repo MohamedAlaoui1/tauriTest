@@ -7,6 +7,8 @@ use tauri::{
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
 };
 
+#[cfg(target_os = "windows")]
+use tauri_plugin_shell::ShellExt;
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_autostart::ManagerExt;
 
