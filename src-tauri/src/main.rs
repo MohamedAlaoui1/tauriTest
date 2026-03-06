@@ -125,8 +125,9 @@ fn main() {
                 .build(app)?;
 
             // Launch detector on Windows only
-            #[cfg(target_os = "windows")]
+           #[cfg(target_os = "windows")]
             {
+                use tauri_plugin_shell::ShellExt;
                 let handle = app.handle().clone();
                 std::thread::spawn(move || {
                     handle
