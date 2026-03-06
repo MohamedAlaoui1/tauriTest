@@ -10,30 +10,32 @@
     "beforeBuildCommand": "npm run build"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
-    {
-      "title": "Memo",
-      "width": 800,
-      "height": 600,
-      "resizable": true,
-      "fullscreen": false
-    },
-    {
-      "label": "popup",
-      "title": "",
-      "width": 320,
-      "height": 150,
-      "resizable": false,
-      "decorations": false,
-      "alwaysOnTop": true,
-      "visible": false,
-      "transparent": true,
-      "skipTaskbar": true,
-      "shadow": false,
-      "url": "popup.html",
-      "x": 9999,
-      "y": 9999
-    }
+      {
+        "label": "main",
+        "title": "Memo",
+        "width": 800,
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false
+      },
+      {
+        "label": "popup",
+        "title": "",
+        "width": 320,
+        "height": 150,
+        "resizable": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "shadow": false,
+        "url": "popup.html",
+        "x": 9999,
+        "y": 9999
+      }
     ],
     "security": {
       "csp": null

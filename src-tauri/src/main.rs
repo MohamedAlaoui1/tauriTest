@@ -11,7 +11,7 @@ use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_autostart::ManagerExt;
 
 #[tauri::command]
-fn show_popup(app: tauri::AppHandle, _app_name: String) {
+fn show_popup(app: tauri::AppHandle, app_name: String) {
     if let Some(popup) = app.get_webview_window("popup") {
         if let Some(monitor) = app.primary_monitor().unwrap() {
             let screen = monitor.size();
@@ -22,10 +22,13 @@ fn show_popup(app: tauri::AppHandle, _app_name: String) {
             let y = screen.height as f64 - height - 60.0;
             popup.set_position(tauri::PhysicalPosition::new(x as i32, y as i32)).unwrap();
         }
+        // Emit event so the popup JS can reset its countdown timer
+        app.emit_to("popup", "popup-reset", app_name).unwrap();
         popup.show().unwrap();
         popup.set_focus().unwrap();
     }
 }
+
 
 #[tauri::command]
 fn start_transcription(app: tauri::AppHandle) {
@@ -74,7 +77,7 @@ fn main() {
                         w.hide().unwrap();
                     }
                 });
-                window.hide().unwrap();
+                // window.hide().unwrap();
             }
             if let Some(popup) = app.get_webview_window("popup") {
                 popup.hide().unwrap();
@@ -111,7 +114,7 @@ fn main() {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
                             if window.is_visible().unwrap() {
-                                window.hide().unwrap();
+                                // window.hide().unwrap();
                             } else {
                                 window.show().unwrap();
                                 window.set_focus().unwrap();

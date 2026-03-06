@@ -325,52 +325,69 @@
  
     // ── App name from query param ──────────────────────────────────────────
     const appName = params.get('app') || 'your call app';
-    document.getElementById('callTitle').textContent = `Call on ${appName}`;
- 
-    // ── Progress bar + countdown ───────────────────────────────────────────
-    const DURATION = 10000; // ms
-    const fill     = document.getElementById('progressFill');
-    const timerEl  = document.getElementById('timer');
-    let   start    = null;
-    let   raf      = null;
- 
-    function tick(now) {
-      if (!start) start = now;
-      const elapsed  = now - start;
-      const fraction = Math.max(0, 1 - elapsed / DURATION);
-      fill.style.width = (fraction * 100) + '%';
-      timerEl.textContent = `Dismisses in ${Math.ceil(fraction * (DURATION / 1000))}s`;
-      if (fraction > 0) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        dismiss();
-      }
+      document.getElementById('callTitle').textContent = `Call on ${appName}`;
+  // Add this at the bottom of your <script> block in popup.html,
+  // replacing the existing tick/dismiss/startTranscription block
+
+  const DURATION = 10000;
+  const fill     = document.getElementById('progressFill');
+  const timerEl  = document.getElementById('timer');
+  let   start    = null;
+  let   raf      = null;
+
+  function resetAndStart(appName) {
+    // Reset countdown
+    cancelAnimationFrame(raf);
+    start = null;
+    document.body.classList.remove('dismissing');
+    if (appName) {
+      document.getElementById('callTitle').textContent = `Call on ${appName}`;
     }
     raf = requestAnimationFrame(tick);
- 
-    // ── Actions ────────────────────────────────────────────────────────────
-    async function dismiss() {
-    cancelAnimationFrame(raf);
-    animateOut();
-    // Wait for animation to finish then hide the window
-    setTimeout(async () => {
-        try { await window.__TAURI__.core.invoke('dismiss_popup'); }
-        catch (e) { console.warn('Tauri invoke failed:', e); }
-    }, 280); // matches slideOut animation duration
-    }
+  }
 
-    async function startTranscription() {
+  function tick(now) {
+    if (!start) start = now;
+    const elapsed  = now - start;
+    const fraction = Math.max(0, 1 - elapsed / DURATION);
+    fill.style.width = (fraction * 100) + '%';
+    timerEl.textContent = `Dismisses in ${Math.ceil(fraction * (DURATION / 1000))}s`;
+    if (fraction > 0) {
+      raf = requestAnimationFrame(tick);
+    } else {
+      dismiss(); // auto-dismiss only hides, never opens main window
+    }
+  }
+
+  async function dismiss() {
     cancelAnimationFrame(raf);
     animateOut();
     setTimeout(async () => {
-        try { await window.__TAURI__.core.invoke('start_transcription'); }
-        catch (e) { console.warn('Tauri invoke failed:', e); }
+      try { await window.__TAURI__.core.invoke('dismiss_popup'); }
+      catch (e) { console.warn('Tauri invoke failed:', e); }
     }, 280);
-    }
+  }
 
-    function animateOut() {
+  async function startTranscription() {
+    cancelAnimationFrame(raf);
+    animateOut();
+    setTimeout(async () => {
+      try { await window.__TAURI__.core.invoke('start_transcription'); }
+      catch (e) { console.warn('Tauri invoke failed:', e); }
+    }, 280);
+  }
+
+  function animateOut() {
     document.body.classList.add('dismissing');
-    }
+  }
+
+  // Listen for reset event from Tauri (fired each time show_popup is called)
+  window.__TAURI__.event.listen('popup-reset', (event) => {
+    resetAndStart(event.payload);
+  });
+
+  // Start the initial countdown
+  raf = requestAnimationFrame(tick);
 </script>
 </body>
 </html>

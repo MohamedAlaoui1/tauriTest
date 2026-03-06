@@ -6,24 +6,13 @@ interface CallStatus {
   app_name: string | null;
 }
 
-const DEV_MODE = import.meta.env.DEV;
-
 export function useCallDetector() {
   const wasActive = useRef<boolean>(false);
 
   useEffect(() => {
-    if (DEV_MODE) {
-      let active = false;
-      const interval = setInterval(() => {
-        active = !active;
-        if (active && !wasActive.current) {
-          invoke("show_popup", { appName: "Teams (simulated)" });
-        }
-        wasActive.current = active;
-      }, 10000);
-      return () => clearInterval(interval);
-    }
-
+    // Poll the Python detector app every 3 seconds
+    // In dev, the Python app just needs to be running at localhost:8000
+    // To test manually without Python: call window.__testCall() in devtools
     const interval = setInterval(async () => {
       try {
         const res = await fetch("http://localhost:8000/status");
@@ -35,10 +24,17 @@ export function useCallDetector() {
 
         wasActive.current = data.call_active;
       } catch (e) {
-        // Python app not running yet, ignore
+        // Python app not running yet — silent fail, keep polling
       }
     }, 3000);
 
     return () => clearInterval(interval);
   }, []);
+}
+
+// Dev helper: open browser devtools and run window.__testCall() to simulate a call
+if (import.meta.env.DEV) {
+  (window as any).__testCall = () => {
+    invoke("show_popup", { appName: "Teams (test)" });
+  };
 }
