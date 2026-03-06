@@ -17,7 +17,8 @@ export function useCallDetector() {
       const interval = setInterval(() => {
         active = !active;
         if (active && !wasActive.current) {
-          invoke("show_popup", { appName: "Teams (simulated)" });
+          invoke("show_popup", { appName: "Teams (simulated)" })
+            .catch((e) => console.error("Invoke error:", e));
         }
         wasActive.current = active;
       }, 10000);
@@ -28,14 +29,18 @@ export function useCallDetector() {
       try {
         const res = await fetch("http://localhost:8000/status");
         const data: CallStatus = await res.json();
+        console.log("Status:", data);
 
         if (data.call_active && !wasActive.current) {
-          invoke("show_popup", { appName: data.app_name || "Unknown App" });
+          console.log("Call detected, showing popup...");
+          invoke("show_popup", { appName: data.app_name || "Unknown App" })
+            .then(() => console.log("Popup shown successfully"))
+            .catch((e) => console.error("Invoke error:", e));
         }
 
         wasActive.current = data.call_active;
       } catch (e) {
-        // Python app not running yet, ignore
+        console.error("Fetch error:", e);
       }
     }, 3000);
 
