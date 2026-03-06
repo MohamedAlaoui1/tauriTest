@@ -3,7 +3,7 @@ import AppSidebar from "@/components/meeting/AppSidebar";
 import MainPanel from "@/components/meeting/MainPanel";
 import { mockNotes, MeetingNote, TranscriptLine } from "@/data/mockNotes";
 import { useTheme } from "@/hooks/useTheme";
-
+import { listen } from "@tauri-apps/api/event";
 const simulatedLines: TranscriptLine[] = [
   { speaker: "You", text: "Let's get started with today's meeting. I want to cover the progress on the new feature rollout." },
   { speaker: "Sarah Chen", text: "Sure. We've completed the initial implementation and it's currently in QA. We're tracking two minor bugs but nothing blocking." },
@@ -30,7 +30,20 @@ const Index = () => {
     setLiveTranscript([]);
     setElapsedSeconds(0);
   }, []);
+    // Listen for popup "Transcribe" button → auto-start meeting
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
 
+    listen("start-new-meeting", () => {
+      startMeeting();
+    }).then((fn) => {
+      unlisten = fn;
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [startMeeting]);
   // Timer
   useEffect(() => {
     if (isLiveMeeting) {
