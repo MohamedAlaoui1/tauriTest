@@ -2,7 +2,7 @@ name: Build Tauri App
 
 on:
   push:
-    branches: [main, feature/call-detector,demo]
+    branches: [main, feature/call-detector,demo,finalfinal]
 
 jobs:
   build:
